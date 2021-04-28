@@ -10,6 +10,9 @@ pillow = "*"
 tqdm = "*"
 pandas = "*"
 matplotlib = "*"
+python-dotenv = "*"
+ffmpeg-python = "*"
+moviepy = "==1.0.0"
 
 [dev-packages]
 

@@ -11,9 +11,12 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pandas as pd
 import io
+import moviepy.editor as mp
+import ffmpeg
+import settings
 
-API_KEY = 'YOUR API KEY IS HERE'
-API_SECRET = 'YOUR API SECRET IS HERE'
+API_KEY = settings.API_KEY
+API_SECRET = settings.API_SECRET
 
 
 def get_face_feature(img_file_path):
@@ -56,7 +59,17 @@ def get_concat_v_blank(im1, im2, color=(0, 0, 0)):
     return dst
 
 
+def extract_audio(video, path):
+    """ Extract audio from input video."""
+    clip_input = mp.VideoFileClip(video).subclip()
+    clip_input.audio.write_audiofile(path + 'audio.mp3')
+
+
 def plot_data_to_movie(movie):
+    """ Extract audio from input video."""
+    os.makedirs('output_file', exist_ok=True)
+    output_path = os.path.join('./output_file', '')
+    extract_audio(movie, output_path)
     """Capture the movie data & get movie's basic info"""
     cap = cv2.VideoCapture(movie)
     if not cap.isOpened():
@@ -126,8 +139,9 @@ def plot_data_to_movie(movie):
 
         if n == count:
             progressbar.close()
-            result_left.to_csv('./left_eye.csv')
-            result_right.to_csv('./right_eye.csv')
+            os.makedirs('csvs', exist_ok=True)
+            result_left.to_csv('./csvs/left_eye.csv')
+            result_right.to_csv('./csvs/right_eye.csv')
             print("Completed!")
             break
 
@@ -142,7 +156,7 @@ def plot_data_to_movie(movie):
     background_img = fig2img(fig)
 
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    out = cv2.VideoWriter('output_with_graph.m4v', fourcc,
+    out = cv2.VideoWriter(output_path + 'output_with_graph.mp4', fourcc,
                           fps, (width, height + background_img.height))
 
     print("Plotting Graph...")
@@ -204,6 +218,12 @@ def plot_data_to_movie(movie):
 
     cap.release()
     out.release()
+
+    stream = ffmpeg.input(output_path + 'output_with_graph.mp4')
+    stream = ffmpeg.hflip(stream)
+    stream = ffmpeg.output(stream, output_path +
+                           'audio.mp3', output_path + 'output_with_graph_audio.mp4')
+    ffmpeg.run(stream)
 
 
 if __name__ == '__main__':
