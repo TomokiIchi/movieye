@@ -156,7 +156,7 @@ def plot_data_to_movie(movie):
     background_img = fig2img(fig)
 
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    out = cv2.VideoWriter(output_path + 'output_with_graph.mp4', fourcc,
+    out = cv2.VideoWriter(output_path + 'output_with_graph.m4v', fourcc,
                           fps, (width, height + background_img.height))
 
     print("Plotting Graph...")
@@ -219,10 +219,10 @@ def plot_data_to_movie(movie):
     cap.release()
     out.release()
 
-    stream = ffmpeg.input(output_path + 'output_with_graph.mp4')
-    stream = ffmpeg.hflip(stream)
-    stream = ffmpeg.output(stream, output_path +
-                           'audio.mp3', output_path + 'output_with_graph_audio.mp4')
+    video = ffmpeg.input(output_path + 'output_with_graph.m4v').video
+    audio = ffmpeg.input(output_path + 'audio.mp3').audio
+    stream = ffmpeg.output(video, audio, output_path +
+                           'output_with_graph_audio.m4v')
     ffmpeg.run(stream)
 
 
